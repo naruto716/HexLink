@@ -321,8 +321,7 @@ Displayed after successful match:
                     │ IN_GAME │
                     └────┬────┘
                          │
-                   (30 min timeout
-                    or manual close)
+                   (All players leave)
                          │
                          ▼
                     ┌─────────┐
