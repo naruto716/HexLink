@@ -1,34 +1,28 @@
 # Discord Integration Requirements
 
-## Platform Responsibility
+## Platform Responsibilities
 
-| Feature | Web | Discord | Notes |
-|---------|:---:|:-------:|-------|
-| Browse Rooms | ✅ | - | Better filtering/visual UI |
-| Create Room | ✅ | ✅ | `/createroom` command |
-| Quick Match | ✅ | ✅ | `/quickmatch` command |
-| SOS Request | ✅ | ✅ | `/sos` command |
-| Bounty Board | ✅ | - | Needs visual list |
-| Notifications | - | ✅ | DMs for match/accept/ready |
-| Voice Channel | - | ✅ | Discord only |
-| Ready Check | ✅ | ✅ | Buttons in both |
+| Feature | Web | Discord |
+|---------|:---:|:-------:|
+| Browse Rooms | ✅ | - |
+| Create Room | ✅ | ✅ |
+| Quick Match | ✅ | ✅ |
+| SOS Request | ✅ | ✅ |
+| Bounty Board | ✅ | - |
+| Notifications | - | ✅ |
+| Voice Channel | - | ✅ |
+| Room Chat | - | ✅ (thread) |
 
 ---
 
 ## Authentication: Magic Link
 
-**REQ-AUTH-01:** Bot-generated links must contain single-use tokens  
-**REQ-AUTH-02:** Tokens expire in 5 minutes  
-**REQ-AUTH-03:** Tokens are invalidated after first use  
-**REQ-AUTH-04:** Tokens are tied to Discord User ID  
-**REQ-AUTH-05:** Fallback to OAuth for direct web visits
-
-```
-Discord DM contains:
-nexus.gg/room/abc?token=xyz123
-         ↓
-Token validates → Auto-login → Session created
-```
+| Property | Value |
+|----------|-------|
+| Expiry | 5 minutes |
+| Uses | Single-use |
+| Tied to | Discord User ID |
+| Fallback | OAuth for direct web visits |
 
 ---
 
@@ -36,44 +30,39 @@ Token validates → Auto-login → Session created
 
 ### /quickmatch
 
-**REQ-CMD-01:** Slash command with options:
-- Platform: PC, PlayStation, Xbox, Seamless
-- Nightlord: Dropdown (optional, default "Any")
-
-**REQ-CMD-02:** On submit:
-- Find existing Open Room OR create new
-- DM user with password + VC link
+```
+Options:
+├── Platform: PC, PlayStation, Xbox, Seamless
+├── Nightlord: [dropdown, optional - default "Any"]
+└── Mode: Normal, Deep of Night
+```
 
 ### /createroom
 
-**REQ-CMD-03:** Slash command with options:
-- Platform: Required
-- Nightlord: Required
-- Type: Open / Closed
-- Party Size: 3 (or up to 6 for Seamless)
-- Mic: Required / Optional
-- Vibe: Chill / Tryhard / Learning
-
-**REQ-CMD-04:** On submit:
-- Create room in system
-- Post to #lfg channel
-- Return confirmation with room link
+```
+Options:
+├── Platform: PC, PlayStation, Xbox, Seamless
+├── Nightlord: [dropdown, required for Normal mode]
+├── Mode: Normal, Deep of Night
+├── Depth: 1-5 (if Deep of Night)
+├── Region: Any, EU, NA
+├── Type: Open, Closed
+├── Party Size: 3 (or up to 6 for Seamless)
+└── Mic: Required, Optional
+```
 
 ### /sos
 
-**REQ-CMD-05:** Slash command with options:
-- Boss: Required
-- Note: Text input
-- Mic: Yes / No
-
-**REQ-CMD-06:** On submit:
-- Post to Bounty Board (web)
-- Post embed to #help-requests channel
-- Wait for Sherpa response
+```
+Options:
+├── Boss: [dropdown]
+├── Note: Text input
+└── Mic: Yes, No
+```
 
 ### /browse
 
-**REQ-CMD-07:** Returns magic link to web room list
+Returns magic link to web room list.
 
 ---
 
@@ -81,43 +70,182 @@ Token validates → Auto-login → Session created
 
 ### Match Found
 
-**REQ-NOTIF-01:** DM all matched players with:
-- Target boss
-- Password (large, copyable)
-- Team list
-- [Join Voice] button
-- [View on Web] magic link
+```
+┌────────────────────────────────────────────────────────────┐
+│ 🎮 MATCH FOUND                                             │
+│                                                            │
+│ Target: Gladius                                            │
+│                                                            │
+│ PASSWORD                                                   │
+│ ┌──────────────────────────────────────────────────────┐  │
+│ │                      Nx882                           │  │
+│ └──────────────────────────────────────────────────────┘  │
+│                    [📋 Copy]                              │
+│                                                            │
+│ TEAM                                                       │
+│ • @WarriorKing (Host) ⭐42                                │
+│ • @Player_A ⭐18                                          │
+│ • @You                                                    │
+│                                                            │
+│ [🔊 Join Voice]  [💬 Open Thread]                         │
+└────────────────────────────────────────────────────────────┘
+```
 
 ### Application Accepted
 
-**REQ-NOTIF-02:** DM accepted player with:
-- Room details
-- [Join Voice] button
-- [Open Room] magic link
-- Note: Other pending applications auto-cancelled
+```
+┌────────────────────────────────────────────────────────────┐
+│ ✅ APPLICATION ACCEPTED                                    │
+│                                                            │
+│ Gladius (Deep Night) - WarriorKing                        │
+│                                                            │
+│ [🔊 Join Voice]  [💬 Open Thread]                         │
+└────────────────────────────────────────────────────────────┘
+```
 
 ### SOS Sherpa Response
 
-**REQ-NOTIF-03:** DM Caller with:
-- Sherpa name
-- "Room created, waiting for 3rd"
-- [Join Voice] button
-- [View Room] magic link
+```
+┌────────────────────────────────────────────────────────────┐
+│ 🛡️ HELP IS ON THE WAY                                     │
+│                                                            │
+│ VeteranHelper is coming to assist with Gladius!           │
+│ Room created. Waiting for 1 more player.                  │
+│                                                            │
+│ [🔊 Join Voice]  [💬 Open Thread]                         │
+└────────────────────────────────────────────────────────────┘
+```
 
 ### Ready Check
 
-**REQ-NOTIF-04:** DM all players when room full:
-- Current ready status for each player
-- [Ready] button
-- [Leave] button
-- Updates in real-time
+```
+┌────────────────────────────────────────────────────────────┐
+│ ⏰ READY CHECK                                             │
+│                                                            │
+│ Room is full! Click Ready when you're at your PC.         │
+│                                                            │
+│ • @WarriorKing: ✅ Ready                                  │
+│ • @Player_A: ⏳ Waiting                                   │
+│ • @You: ⏳ Waiting                                        │
+│                                                            │
+│           [✅ Ready]        [❌ Leave]                    │
+└────────────────────────────────────────────────────────────┘
+```
 
-### Room Locked
+### Room Locked (Final)
 
-**REQ-NOTIF-05:** DM all players with final:
-- Password (prominent)
-- [Join Voice] button
-- Team list
+```
+┌────────────────────────────────────────────────────────────┐
+│ 🎮 ROOM READY — GO!                                        │
+│                                                            │
+│ PASSWORD: Nx882                    [📋 Copy]              │
+│                                                            │
+│ [🔊 Join Voice]  [💬 Open Thread]                         │
+└────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Channel Interface: Room Card
+
+Posted in #lfg channel when room is created:
+
+### Room Card Embed
+
+```
+┌────────────────────────────────────────────────────────────┐
+│ Nightreign LFG — DoN Depth 3 (Trio)                       │
+├────────────────────────────────────────────────────────────┤
+│                                                            │
+│ Host           @WarriorKing ⭐42                          │
+│ Target         Gladius                                    │
+│ Region         EU • Mic Required                          │
+│                                                            │
+│ Status         🟡 ALMOST READY (2/3)                      │
+│                                                            │
+│ Members in voice:                                          │
+│ • @WarriorKing ⭐42                                       │
+│ • @Player_A ⭐18                                          │
+│                                                            │
+│ Notes          "Need DPS, know the fight"                 │
+│                                                            │
+│ ⏱ Last push: 2 min ago                                   │
+├────────────────────────────────────────────────────────────┤
+│ [📣 Push]  [🔔 Notify Me]  [🛑 Close]                     │
+└────────────────────────────────────────────────────────────┘
+```
+
+### Status Progression
+
+```
+OPEN (0/3) → ALMOST (2/3) → FULL (3/3) → LOCKED → CLOSED
+                                  ↓
+                         2 min grace period
+```
+
+### Buttons
+
+| Button | Who Can Use | Action |
+|--------|-------------|--------|
+| 📣 Push | Host only | Bumps visibility, 60s cooldown |
+| 🔔 Notify Me | Anyone | Subscribe for DM when full |
+| 🛑 Close | Host only | Closes the room |
+
+---
+
+## Push System
+
+| Property | Value |
+|----------|-------|
+| Cooldown | 60 seconds per room |
+| Effect | Bumps thread + channel visibility |
+| Stale hint | Show "No push in: XX:XX" after 5 min |
+
+---
+
+## "Notify Me" Feature
+
+1. User clicks [🔔 Notify Me] on room card
+2. User ID added to subscribers list
+3. When room fills (3/3), bot DMs all subscribers
+4. Rate limit: Max 3 DMs per user per hour
+
+---
+
+## Temporary Channels
+
+### Private Voice Channel
+
+| Property | Value |
+|----------|-------|
+| Created | When room locks |
+| Visibility | Only party members (permission overwrites) |
+| Name | `{Boss}-{Password}` (e.g., Gladius-Nx882) |
+| User limit | Party size (3 or 6) |
+| Deleted | 5 min after empty |
+
+### Private Thread
+
+| Property | Value |
+|----------|-------|
+| Created | When room locks |
+| Visibility | Only party members (private thread) |
+| Name | `{Boss} | {Password}` |
+| Auto-archive | 24 hours |
+| Parent | #lfg-rooms channel |
+
+### Creation Flow
+
+```
+Room locks → Create private VC → Create private thread
+                    │                    │
+                    └──────┬─────────────┘
+                           ▼
+              Post password + links in thread
+                           │
+                           ▼
+              DM all players with same info
+```
 
 ---
 
@@ -125,75 +253,64 @@ Token validates → Auto-login → Session created
 
 ### #lfg Channel
 
-**REQ-CHAN-01:** Bot posts Open Rooms as embeds:
+Room cards posted here (Open rooms only):
+
 ```
-🔓 OPEN ROOM                              2/3
-Target: Gladius
-Platform: PC | Chill | No Mic
-Host: WarriorKing
-
-[Join Room]
-```
-
-**REQ-CHAN-02:** Embed updates when:
-- Slot count changes
-- Room fills (mark as full)
-- Room closes (delete or mark closed)
-
-**REQ-CHAN-03:** Limit to last 20 active rooms (avoid spam)
-
-### #help-requests Channel
-
-**REQ-CHAN-04:** Bot posts SOS requests:
-```
-🆘 SOS REQUEST
-Target: Messmer
-"Can't get past phase 2"
-Caller: StuckPlayer
-
-[Assist 🛡️]
+┌────────────────────────────────────────────────────────────┐
+│ 🔓 Gladius (DoN Depth 3)                        2/3 ●●○  │
+│ PC | EU | Tryhard | Mic Req                               │
+│ Host: @WarriorKing ⭐42                                   │
+│                                        [Join] [Notify Me] │
+└────────────────────────────────────────────────────────────┘
 ```
 
-**REQ-CHAN-05:** Delete embed when Sherpa responds
+### #sos-requests Channel
+
+SOS requests posted here:
+
+```
+┌────────────────────────────────────────────────────────────┐
+│ 🆘 Messmer                                     ⏱ 3 min   │
+│ "Can't get past phase 2..."                               │
+│ Caller: @StuckPlayer                                      │
+│                                            [Assist 🛡️]    │
+└────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## Voice Channels
+## Expiry System
 
-**REQ-VC-01:** Create temp VC when room locks  
-**REQ-VC-02:** VC name format: `Lobby-{password}` (e.g., `Lobby-Nx882`)  
-**REQ-VC-03:** Auto-delete VC after 5 min empty  
-**REQ-VC-04:** Move matched players to VC (if they grant permission)  
-**REQ-VC-05:** Generate instant-join link for DM button
+| Trigger | Action |
+|---------|--------|
+| 40 min inactivity | Auto-expire room |
+| All players leave | Close room |
+| Host clicks Close | Close room |
+| Sweeper | Runs every 2 min |
 
 ---
 
 ## Bidirectional Sync
 
-**REQ-SYNC-01:** Room created on Web → Post to #lfg  
-**REQ-SYNC-02:** Room created via /createroom → Visible on Web  
-**REQ-SYNC-03:** Join on Web → Discord DM notification  
-**REQ-SYNC-04:** Join via Discord button → Web updates slot count  
-**REQ-SYNC-05:** Ready on Web → Discord embed updates  
-**REQ-SYNC-06:** Ready via Discord button → Web shows ready
+| Action | Web → Discord | Discord → Web |
+|--------|:-------------:|:-------------:|
+| Create room | Post to #lfg | Show in room list |
+| Join room | DM notification | Update slot count |
+| Ready check | Update embed | Update status |
+| Push | - | Bump visibility |
+| Close | Delete/archive | Remove from list |
 
 ---
 
-## Bot Permissions Required
+## Bot Permissions
 
 ```
 SEND_MESSAGES
 EMBED_LINKS
 USE_SLASH_COMMANDS
 MANAGE_CHANNELS (for temp VCs)
-MOVE_MEMBERS (optional, for auto-move to VC)
+MANAGE_THREADS (for private threads)
+CREATE_PRIVATE_THREADS
+VIEW_CHANNEL
+CONNECT
 ```
-
----
-
-## Error States
-
-**REQ-ERR-01:** Token expired → Redirect to OAuth  
-**REQ-ERR-02:** Room full when joining → "Room is full" message  
-**REQ-ERR-03:** Room closed → "Room no longer exists"  
-**REQ-ERR-04:** VC creation fails → Provide manual join instructions
