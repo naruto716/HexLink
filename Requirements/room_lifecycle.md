@@ -1,15 +1,34 @@
-# Room Lifecycle Design: VC-as-Presence Model
+# Room Lifecycle Design: VC-as-Presence Model (v2)
 
-## Core Principle
+## Core Principles
 
 > **VC presence = Room membership**
-> 
-> - Join room on platform → must join VC to be "Ready"
+> - Join room → 5min to connect to VC or auto-kicked
 > - In VC = in room
-> - Leave VC = leave room (with grace period)
+> - Leave VC = grace period → kicked if not rejoined
 > - VC empty = room closed
 
-No separate threads needed - VC channels have built-in text chat.
+No separate threads - use VC's built-in text chat.
+
+---
+
+## Room Modes
+
+| Mode | Description | Who Can Join |
+|------|-------------|--------------|
+| **OPEN** | Anyone can join instantly | Anyone |
+| **APPLY** | Host reviews and accepts/rejects | Must apply, host decides |
+| **RUN** | Run in progress | No one (in-game) |
+| **LOCKED** | Host manually locked the room | No one |
+
+---
+
+## Room Sizes
+
+| Platform | Max Players |
+|----------|:-----------:|
+| PC / PlayStation / Xbox | 3 |
+| PC (Seamless Co-op Mod) | 6 |
 
 ---
 
@@ -18,21 +37,27 @@ No separate threads needed - VC channels have built-in text chat.
 ```mermaid
 stateDiagram-v2
     [*] --> CREATED: Host creates room
-    CREATED --> WAITING: VC created, waiting for players
+    CREATED --> OPEN: Host joins VC
+    CREATED --> APPLY: Host joins VC (apply mode)
     
-    WAITING --> FILLING: Host joins VC
-    FILLING --> FILLING: Players join VC
-    FILLING --> READY: All slots filled + all in VC
+    OPEN --> OPEN: Players join/leave
+    APPLY --> APPLY: Players apply, host accepts/rejects
     
-    READY --> PLAYING: Host starts run
-    PLAYING --> PLAYING: Run in progress
+    OPEN --> RUN: Host starts run
+    APPLY --> RUN: Host starts run
+    OPEN --> LOCKED: Host locks room
+    APPLY --> LOCKED: Host locks room
     
-    PLAYING --> CLOSING: Host ends run OR all leave VC
-    CLOSING --> REVIEW: Prompt ratings
-    REVIEW --> CLOSED: Ratings done/skipped
+    RUN --> OPEN: Run ends (room reopens)
+    LOCKED --> OPEN: Host unlocks
+    LOCKED --> CLOSED: Host closes room
     
-    FILLING --> EXPIRED: No host in VC for 10min
-    WAITING --> EXPIRED: No one joins for 10min
+    OPEN --> EXPIRED: No host in VC for 10min
+    APPLY --> EXPIRED: No host in VC for 10min
+    CREATED --> EXPIRED: Host never joins VC
+    
+    OPEN --> CLOSED: Host closes room
+    APPLY --> CLOSED: Host closes room
     
     CLOSED --> [*]
     EXPIRED --> [*]
@@ -40,248 +65,270 @@ stateDiagram-v2
 
 ---
 
-## Sequence Diagram: Complete Flow
+## Join Flow: OPEN Room
+
+```mermaid
+sequenceDiagram
+    participant Player
+    participant Web
+    participant Backend
+    participant Bot
+    participant Discord
+
+    Player->>Web: Click "Join Room"
+    Web->>Backend: POST /rooms/{id}/join
+    Backend->>Backend: Add player to room (PENDING)
+    Backend->>Backend: Start 5min VC grace timer
+    Backend->>Web: Room joined + VC link
+    Backend->>Bot: Update room card
+    Bot->>Discord: Update embed
+    Web->>Player: "Join VC within 5 min!"
+    
+    alt Player joins VC in time
+        Player->>Discord: Joins VC
+        Discord->>Bot: on_voice_state_update
+        Bot->>Backend: VoiceJoin event
+        Backend->>Backend: Player → READY, cancel timer
+        Backend->>Web: Update room state
+        Backend->>Bot: Update room card
+    else 5min expires
+        Backend->>Backend: Remove player from room
+        Backend->>Web: Player kicked notification
+        Backend->>Bot: Update room card
+    end
+```
+
+---
+
+## Join Flow: APPLY Room
+
+```mermaid
+sequenceDiagram
+    participant Player
+    participant Web
+    participant Backend
+    participant Bot
+    participant Discord
+    participant Host
+
+    Player->>Web: Click "Apply"
+    Web->>Backend: POST /rooms/{id}/apply
+    Backend->>Backend: Add to applicants list
+    Backend->>Web: "Application sent!"
+    Backend->>Bot: Notify host
+    Bot->>Discord: DM host: "New applicant!"
+    
+    Host->>Web: View applicants
+    Web-->>Host: Show applicant profiles
+    
+    alt Host accepts
+        Host->>Web: Click "Accept"
+        Web->>Backend: POST /rooms/{id}/accept/{playerId}
+        Backend->>Backend: Move to room (PENDING)
+        Backend->>Backend: Start 5min VC grace timer
+        Backend->>Web: Notify player: "Accepted!"
+        Backend->>Bot: DM player with VC link
+        Note over Player: Same VC join flow as OPEN
+    else Host rejects
+        Host->>Web: Click "Reject"
+        Web->>Backend: POST /rooms/{id}/reject/{playerId}
+        Backend->>Backend: Remove from applicants
+        Backend->>Web: Notify player: "Rejected"
+    end
+```
+
+---
+
+## Run Lifecycle
 
 ```mermaid
 sequenceDiagram
     participant Host
-    participant Web/Bot
+    participant Web
     participant Backend
+    participant Bot
     participant Discord
-    participant Player
+    participant Players
 
-    Note over Host,Player: === ROOM CREATION ===
+    Note over Host,Players: === START RUN ===
     
-    Host->>Web/Bot: Create room (boss, region, mic, etc)
-    Web/Bot->>Backend: POST /rooms
-    Backend->>Backend: Generate room + password
-    Backend->>Discord: Create private VC in category
-    Discord-->>Backend: VC created (channel_id)
-    Backend-->>Web/Bot: Room created + VC link
-    Web/Bot-->>Host: "Room created! Join VC to start"
+    Host->>Web: Click "Start Run"
+    Web->>Backend: POST /rooms/{id}/start
+    Backend->>Backend: Room → LOCKED
+    Backend->>Backend: Generate password
+    Backend->>Web: Update all clients
+    Backend->>Bot: Send password to VC chat
+    Bot->>Discord: Post in VC: "Password: Nx882"
+    Backend->>Bot: DM all players
+    Bot->>Discord: DM each: "Run started! Password: Nx882"
     
-    Note over Host,Player: === HOST JOINS VC ===
+    Note over Host,Players: === PLAYING ===
+    Note right of Backend: Track run start time
     
-    Host->>Discord: Joins VC
-    Discord->>Backend: on_voice_state_update (host joined)
-    Backend->>Backend: Mark host as READY
-    Backend->>Discord: Update room card embed
+    Note over Host,Players: === END RUN ===
     
-    Note over Host,Player: === PLAYERS JOIN ===
+    Host->>Web: Click "End Run"
+    Web->>Backend: POST /rooms/{id}/end
+    Backend->>Backend: Calculate run duration
     
-    Player->>Web/Bot: Browse rooms / Apply
-    Web/Bot-->>Player: Room list with VC links
-    Player->>Discord: Click VC link → Join VC
-    Discord->>Backend: on_voice_state_update (player joined)
-    Backend->>Backend: Mark player as READY
-    Backend->>Discord: Update room card (2/3)
-    
-    Note over Host,Player: === ROOM FULL ===
-    
-    Discord->>Backend: 3rd player joins VC
-    Backend->>Backend: Room FULL + all READY
-    Backend->>Discord: Post in VC chat: "All ready! 🎮"
-    Backend->>Discord: DM all: Password + "Good luck!"
-    
-    Note over Host,Player: === PLAYING ===
-    
-    Host->>Web/Bot: Click "Start Run" (optional)
-    Note right of Backend: Or auto-start when full
-    
-    Note over Host,Player: === DISCONNECT HANDLING ===
-    
-    Player->>Discord: Disconnects from VC
-    Discord->>Backend: on_voice_state_update (player left)
-    Backend->>Backend: Start 5min grace timer
-    Backend->>Discord: DM player: "Disconnected! Rejoin within 5min"
-    
-    alt Player rejoins
-        Player->>Discord: Rejoins VC
-        Backend->>Backend: Cancel grace timer
-    else Grace period expires
-        Backend->>Backend: Mark player as LEFT
-        Backend->>Discord: Update room card (2/3)
-        Backend->>Discord: Notify VC: "Player left the room"
+    alt Run >= 10 min
+        Backend->>Backend: Unlock review eligibility
+        Backend->>Bot: DM all: "Rate teammates?"
+    else Run < 10 min
+        Note right of Backend: No review eligibility
     end
     
-    Note over Host,Player: === RUN ENDS ===
+    Backend->>Backend: Room → OPEN (or APPLY)
+    Backend->>Web: Update all clients
+    Backend->>Bot: Update room card
     
-    alt Host ends run
-        Host->>Web/Bot: Click "End Run"
-    else All leave VC
-        Discord->>Backend: VC empty
-    end
-    
-    Backend->>Backend: Room → CLOSING
-    Backend->>Discord: DM all: Rating prompt
-    
-    Note over Host,Player: === REVIEWS ===
-    
-    Host->>Discord: Rate teammates (👍/👎/Skip)
-    Player->>Discord: Rate teammates
-    Backend->>Backend: Update reputation scores
-    Backend->>Backend: Room → CLOSED
-    Backend->>Discord: Delete VC (or after 5min empty)
+    Note over Host,Players: Room reopens for more runs!
 ```
 
 ---
 
-## Activity Diagram: Join Room Flow
+## Grace Period (All States)
+
+Every player in the room must stay in VC. Grace period applies universally.
 
 ```mermaid
 flowchart TD
-    A[User finds room] --> B{How?}
-    B -->|Web| C[Browse room list]
-    B -->|Discord| D[See room card in #lfg]
-    B -->|Bot| E["quickmatch command"]
+    A[Player joins room] --> B[5min to join VC]
+    B --> C{Joins VC?}
+    C -->|Yes| D[Player is READY ✅]
+    C -->|No, 5min| E[Auto-kicked from room]
     
-    C --> F[Click Join]
-    D --> F
-    E --> F
+    D --> F[Player in room]
+    F --> G[Player disconnects from VC]
+    G --> H[5min grace period starts]
+    H --> I{Rejoins VC?}
+    I -->|Yes| F
+    I -->|No, 5min| J[Auto-kicked from room]
     
-    F --> G{Room type?}
-    G -->|Open| H[Get VC link immediately]
-    G -->|Closed| I[Apply to room]
-    
-    I --> J{Host accepts?}
-    J -->|Yes| H
-    J -->|No| K[Rejected - back to browse]
-    
-    H --> L[User clicks VC link]
-    L --> M{User in VC?}
-    M -->|Yes| N[Marked as READY ✅]
-    M -->|No timeout| O[Reminder: Join VC to be ready]
-    O --> L
-    
-    N --> P{Room full?}
-    P -->|No| Q[Wait for more players]
-    P -->|Yes| R[All ready - run can start!]
+    style B fill:#ff9
+    style H fill:#ff9
 ```
 
 ---
 
-## Disconnect Handling Detail
+## Host Actions
+
+| Action | Endpoint | Effect |
+|--------|----------|--------|
+| **Start Run** | `POST /rooms/{id}/start` | Lock room, send password |
+| **End Run** | `POST /rooms/{id}/end` | Unlock room, prompt reviews if eligible |
+| **Kick Player** | `POST /rooms/{id}/kick/{userId}` | Remove player immediately |
+| **Close Room** | `DELETE /rooms/{id}` | Delete room and VC |
+| **Change Mode** | `PATCH /rooms/{id}` | Switch between OPEN/APPLY |
+
+---
+
+## Leave Room & Host Transfer
 
 ```mermaid
 flowchart TD
-    A[Player disconnects from VC] --> B[Start 5min grace timer]
-    B --> C[DM player: Rejoin within 5min]
+    A[Player clicks Leave] --> B{Is host?}
+    B -->|No| C[Remove from room]
+    B -->|Yes| D{Other players?}
+    D -->|Yes| E[Promote oldest member to host]
+    D -->|No| F[Close room]
     
-    C --> D{Player action?}
-    D -->|Rejoins VC| E[Cancel timer, restore READY]
-    D -->|Clicks Leave| F[Immediate removal]
-    D -->|No action| G{5min passed?}
+    E --> G[Notify new host]
+    G --> H[Continue room]
     
-    G -->|Yes| H[Mark as LEFT]
-    G -->|No| D
-    
-    H --> I[Update room count]
-    I --> J{Was host?}
-    J -->|Yes| K[Transfer host or close room]
-    J -->|No| L[Notify remaining players]
-    
-    E --> M[Continue playing]
-    F --> N[Reputation penalty if mid-run]
+    C --> I[Update room card]
+    F --> I
+    H --> I
 ```
 
 ---
 
-## Edge Cases
+## Review System
 
-### 1. Host Never Joins VC
+### Eligibility
 
-```mermaid
-flowchart LR
-    A[Room created] --> B[10min timer starts]
-    B --> C{Host joins VC?}
-    C -->|Yes| D[Room active]
-    C -->|No, 10min| E[Room expired, deleted]
-```
+| Condition | Rule |
+|-----------|------|
+| Run duration | Must be ≥ 10 minutes |
+| Same run | Must have been in the same run together |
+| Per run | Each user can rate another user **once per valid run** |
 
-### 2. Player Joins Platform but Not VC
+### Flow
 
 ```mermaid
-flowchart LR
-    A[Player in room on web] --> B[Not in VC = NOT READY]
-    B --> C[Show in room as ⏳ Waiting]
-    C --> D[Cannot participate until in VC]
+sequenceDiagram
+    participant Backend
+    participant Bot
+    participant Discord
+    participant User
+    participant Web
+
+    Backend->>Backend: Run ends, duration ≥ 10min
+    Backend->>Backend: Create pending reviews for run
+    Backend->>Bot: Send review prompt
+    Bot->>Discord: DM: "Rate your teammates! [Review on Web]"
+    User->>Discord: Clicks link
+    Discord->>Web: Magic link to /reviews/{runId}
+    Web->>User: Show teammates with 5-star rating
+    User->>Web: Submit ratings (1-5 stars each)
+    Web->>Backend: POST /reviews
+    Backend->>Backend: Store ratings for this run
 ```
 
-### 3. Someone Joins VC Uninvited
+### Web Rating UI
 
-```mermaid
-flowchart LR
-    A[Unknown user joins VC] --> B{VC is private?}
-    B -->|Yes| C[Discord blocks - no permission]
-    B -->|No/Bug| D[Bot detects unknown user]
-    D --> E[Add to room OR kick]
-```
-
-### 4. Multiple Runs in Same Room
-
-```mermaid
-flowchart TD
-    A[Run 1 complete] --> B{Host choice}
-    B -->|End Room| C[Close room, prompt reviews]
-    B -->|Another Run| D[Reset ready states]
-    D --> E[Same VC, new run]
-    E --> F[Run 2...]
-```
-
-### 5. Host Leaves Mid-Run
-
-```mermaid
-flowchart TD
-    A[Host disconnects] --> B[5min grace]
-    B --> C{Rejoins?}
-    C -->|Yes| D[Continue as host]
-    C -->|No| E{Other players?}
-    E -->|Yes| F[Promote oldest member to host]
-    E -->|No| G[Room closes]
-```
+| Element | Description |
+|---------|-------------|
+| Teammate cards | Avatar, name, reputation tier |
+| 5-star rating | Click to rate 1-5 stars |
+| Optional comment | Text field (optional) |
+| Skip button | Skip rating this player |
 
 ---
 
-## Room States Summary
+## Update Targets
 
-| State | VC Status | Host | Players | Actions Available |
-|-------|-----------|------|---------|-------------------|
-| `CREATED` | VC exists | Not in VC | - | Host must join VC |
-| `WAITING` | Empty | In VC | - | Waiting for players |
-| `FILLING` | 1-2 members | In VC | Some in VC | Join, leave |
-| `READY` | Full | In VC | All in VC | Start run |
-| `PLAYING` | Full | In VC | All in VC | End run, leave |
-| `CLOSING` | Any | Any | Any | Rate teammates |
-| `CLOSED` | Deleted | - | - | - |
-| `EXPIRED` | Deleted | - | - | - |
+When room state changes, update BOTH:
 
----
-
-## Key Design Decisions
-
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| VC presence = membership | ✅ Yes | Only way to track who's actually playing |
-| Separate thread | ❌ No | VC has built-in text chat |
-| Grace period on disconnect | 5 min | Handles accidental disconnects |
-| Multiple runs per room | ✅ Yes | Host can reuse room |
-| Reviews | After room closes | Prompt via DM |
-| Host transfer | ✅ Yes | If host leaves, promote member |
+| Target | Method |
+|--------|--------|
+| **Web** | WebSocket push to all connected clients |
+| **Discord** | Bot updates embed in #lfg |
 
 ---
 
 ## API Endpoints
 
+### Room Management
 | Endpoint | Action |
 |----------|--------|
 | `POST /rooms` | Create room |
 | `GET /rooms` | List active rooms |
 | `GET /rooms/{id}` | Room details |
-| `POST /rooms/{id}/apply` | Apply to closed room |
-| `POST /rooms/{id}/accept/{userId}` | Accept applicant |
-| `POST /rooms/{id}/start` | Start run (optional) |
-| `POST /rooms/{id}/end` | End run, trigger reviews |
+| `PATCH /rooms/{id}` | Update room settings |
 | `DELETE /rooms/{id}` | Close room |
+
+### Player Actions
+| Endpoint | Action |
+|----------|--------|
+| `POST /rooms/{id}/join` | Join open room |
+| `POST /rooms/{id}/leave` | Leave room |
+| `POST /rooms/{id}/apply` | Apply to room |
+
+### Host Actions
+| Endpoint | Action |
+|----------|--------|
+| `POST /rooms/{id}/accept/{userId}` | Accept applicant |
+| `POST /rooms/{id}/reject/{userId}` | Reject applicant |
+| `POST /rooms/{id}/kick/{userId}` | Kick player |
+| `POST /rooms/{id}/start` | Start run |
+| `POST /rooms/{id}/end` | End run |
+
+### Ratings
+| Endpoint | Action |
+|----------|--------|
+| `POST /ratings` | Submit rating |
+| `GET /ratings/{userId}` | Get user's rating summary |
 
 ---
 
@@ -294,4 +341,5 @@ flowchart TD
 | Bot → Backend | `VoiceLeave` | User leaves VC |
 | Backend → Bot | `UpdateRoomCard` | Room state changes |
 | Backend → Bot | `SendDM` | Notifications |
+| Backend → Bot | `PostToVC` | Send message to VC chat |
 | Backend → Bot | `DeleteVC` | Room closes |
