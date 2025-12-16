@@ -18,6 +18,8 @@ User stories for the Nightreign matchmaking platform, grouped by page/feature. E
 | RM-03 | As a player, I want to see room cards with host info, player count, and mode, so that I can quickly assess rooms. | - Shows: Boss, platform, region, mic, "2/3 ●●○"<br>- Host avatar + name + reputation badge<br>- Room description (truncated) |
 | RM-04 | As a player, I want to hover on a username to see a mini profile card, so that I can check their reputation without leaving the page. | - Popup shows: name, tier badge, run count, avg rating<br>- Click navigates to full profile |
 | RM-05 | As a player, I want to see how long a room has been open, so that I can avoid stale listings. | - Shows "Created X min ago"<br>- Updates in real-time |
+| RM-06 | As a player, I want to filter rooms by game mode (Normal/Deep of Night), so that I can find the right match type. | - Game mode filter toggle<br>- DON rooms show depth badge |
+| RM-07 | As a Deep of Night player, I want to filter by depth level (1-5), so that I can find teams at my skill level. | - Depth filter (only visible when DON selected)<br>- Shows "Depth 3" badge on room cards |
 
 ### Joining Rooms
 
@@ -38,6 +40,8 @@ User stories for the Nightreign matchmaking platform, grouped by page/feature. E
 | CR-02 | As a player, I want to choose between OPEN and APPLY room modes, so that I can control who joins. | - Toggle between modes<br>- APPLY shows explanation |
 | CR-03 | As a player, I want to add an optional description (300 chars), so that I can specify requirements. | - Character counter<br>- Truncates at limit |
 | CR-04 | As a player, I want to create a room and be redirected to the room view, so that I can start hosting. | - Creates room in CREATED state<br>- Creates private VC in Discord<br>- Redirects to `/rooms/{id}` |
+| CR-05 | As a player, I want to select Normal or Deep of Night mode when creating a room, so that I can find teammates for ranked play. | - Game mode toggle (Normal/Deep of Night)<br>- Deep of Night shows depth selector |
+| CR-06 | As a Deep of Night player, I want to select target depth (1-5), so that I can match with similar-skill players. | - Depth 1-5 dropdown (only for DON)<br>- Boss selector hidden (DON = random boss) |
 
 ---
 
