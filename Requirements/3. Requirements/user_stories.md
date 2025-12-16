@@ -42,7 +42,7 @@ User stories for the Nightreign matchmaking platform, grouped by page/feature. E
 | CR-04 | As a player, I want to create a room and be redirected to the room view, so that I can start hosting. | - Creates room in CREATED state<br>- Creates private VC in Discord<br>- Redirects to `/rooms/{id}` |
 | CR-05 | As a player, I want to select Normal or Deep of Night mode when creating a room, so that I can find teammates for ranked play. | - Game mode toggle (Normal/Deep of Night)<br>- Deep of Night shows depth selector |
 | CR-06 | As a Deep of Night player, I want to select target depth (1-5), so that I can match with similar-skill players. | - Depth 1-5 dropdown (only for DON)<br>- Boss selector hidden (DON = random boss) |
-| CR-07 | As a host, I want to select my Nightfarer when creating a room, so that teammates know what class I'm playing. | - Nightfarer dropdown<br>- Shows on room card |
+
 
 ---
 
@@ -62,6 +62,7 @@ User stories for the Nightreign matchmaking platform, grouped by page/feature. E
 |----|-------|---------------------|
 | RV-04 | As a room member, I want to click "Leave Room", so that I can exit the group. | - Removes from room<br>- Redirects to room list |
 | RV-05 | As a player in grace period, I want to see a countdown timer, so that I know how long I have to join VC. | - Shows "Join VC in X:XX or you'll be kicked"<br>- Updates in real-time |
+| RV-05.1 | As a room member, I want to select my Nightfarer (or ANY), so that teammates know what class I'm playing. | - Dropdown with all Nightfarers + ANY<br>- Defaults to profile preference<br>- Shows on member card |
 
 ### Host Actions
 
