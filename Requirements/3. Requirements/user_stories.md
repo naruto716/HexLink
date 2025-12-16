@@ -42,6 +42,7 @@ User stories for the Nightreign matchmaking platform, grouped by page/feature. E
 | CR-04 | As a player, I want to create a room and be redirected to the room view, so that I can start hosting. | - Creates room in CREATED state<br>- Creates private VC in Discord<br>- Redirects to `/rooms/{id}` |
 | CR-05 | As a player, I want to select Normal or Deep of Night mode when creating a room, so that I can find teammates for ranked play. | - Game mode toggle (Normal/Deep of Night)<br>- Deep of Night shows depth selector |
 | CR-06 | As a Deep of Night player, I want to select target depth (1-5), so that I can match with similar-skill players. | - Depth 1-5 dropdown (only for DON)<br>- Boss selector hidden (DON = random boss) |
+| CR-07 | As a host, I want to select my Nightfarer when creating a room, so that teammates know what class I'm playing. | - Nightfarer dropdown<br>- Shows on room card |
 
 ---
 
@@ -106,14 +107,18 @@ User stories for the Nightreign matchmaking platform, grouped by page/feature. E
 | PR-03 | As a player, I want to see a user's reputation tier and badge, so that I can trust their skill level. | - Tier: Newcomer → Reliable → Trusted → Veteran → Legend<br>- Sherpa badges if applicable |
 | PR-04 | As a player, I want to see a user's recent runs (last 20), so that I can see their activity. | - List of recent runs<br>- Shows: boss, result (✅/❌), duration, time ago<br>- Can be hidden by user |
 | PR-05 | As a player, I want to see a user's preferences (platform, mic, vibe), so that I know their playstyle. | - Shows preferences section |
+| PR-06 | As a player, I want to see a user's main Nightfarers, so that I know what classes they play. | - Shows top 1-3 Nightfarers<br>- Based on run history or manual selection |
+| PR-07 | As a player, I want to see a user's platform friend links (Steam/PSN/Xbox), so that I can add them in-game. | - Clickable Steam friend code/link<br>- PSN ID (text, no link available)<br>- Xbox Gamertag link |
 
 ### My Profile
 
 | ID | Story | Acceptance Criteria |
 |----|-------|---------------------|
-| PR-06 | As a logged-in user, I want to edit my preferences, so that I can update my playstyle. | - Edit button on my profile<br>- Form for platform, mic, vibe |
-| PR-07 | As a logged-in user, I want to hide my recent runs, so that I can maintain privacy. | - Toggle in settings<br>- Hidden runs not shown to others |
-| PR-08 | As a logged-in user, I want to set a default password for my rooms, so that I don't have to remember random passwords. | - Optional field in preferences<br>- Used when starting runs if set<br>- Otherwise system generates one |
+| PR-08 | As a logged-in user, I want to edit my preferences, so that I can update my playstyle. | - Edit button on my profile<br>- Form for platform, mic, vibe |
+| PR-09 | As a logged-in user, I want to hide my recent runs, so that I can maintain privacy. | - Toggle in settings<br>- Hidden runs not shown to others |
+| PR-10 | As a logged-in user, I want to set a default password for my rooms, so that I don't have to remember random passwords. | - Optional field in preferences<br>- Used when starting runs if set<br>- Otherwise system generates one |
+| PR-11 | As a logged-in user, I want to set my main Nightfarers, so that others know my preferred classes. | - Multi-select (1-3 Nightfarers)<br>- Displayed on profile |
+| PR-12 | As a logged-in user, I want to add my platform friend links, so that teammates can add me in-game. | - Steam: Friend Code or profile URL<br>- PSN: PSN ID text field<br>- Xbox: Gamertag (auto-generates link) |
 
 ---
 
