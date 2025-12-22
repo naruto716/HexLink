@@ -11,37 +11,37 @@ User stories for the Nightreign matchmaking platform, grouped by page/feature. E
 
 ### Viewing Rooms
 
-| ID | Story | Acceptance Criteria |
-|----|-------|---------------------|
-| RM-01 | As a player, I want to see a list of active rooms, so that I can find a group to play with. | - Shows all OPEN/APPLY rooms<br>- Real-time updates via WebSocket<br>- Empty state when no rooms |
-| RM-02 | As a player, I want to filter rooms by platform, boss, region, and mic preference, so that I can find compatible groups. | - Filter dropdowns persist selection<br>- Results update immediately<br>- "Clear filters" button |
-| RM-03 | As a player, I want to see room cards with host info, player count, and mode, so that I can quickly assess rooms. | - Shows: Boss, platform, region, mic, "2/3 ●●○"<br>- Host avatar + name + reputation badge<br>- Room description (truncated) |
-| RM-04 | As a player, I want to hover on a username to see a mini profile card, so that I can check their reputation without leaving the page. | - Popup shows: name, tier badge, run count, avg rating<br>- Click navigates to full profile |
-| RM-05 | As a player, I want to see how long a room has been open, so that I can avoid stale listings. | - Shows "Created X min ago"<br>- Updates in real-time |
-| RM-06 | As a player, I want to filter rooms by game mode (Normal/Deep of Night), so that I can find the right match type. | - Game mode filter toggle<br>- DON rooms show depth badge |
-| RM-07 | As a Deep of Night player, I want to filter by depth level (1-5), so that I can find teams at my skill level. | - Depth filter (only visible when DON selected)<br>- Shows "Depth 3" badge on room cards |
+| ID | Story | Acceptance Criteria | Status |
+|----|-------|---------------------|--------|
+| RM-01 | As a player, I want to see a list of active rooms, so that I can find a group to play with. | - Shows all OPEN/APPLY rooms<br>- Real-time updates via WebSocket<br>- Empty state when no rooms | ✅ Done |
+| RM-02 | As a player, I want to filter rooms by platform, boss, region, and mic preference, so that I can find compatible groups. | - Filter dropdowns persist selection<br>- Results update immediately<br>- "Clear filters" button | ✅ Done |
+| RM-03 | As a player, I want to see room cards with host info, player count, and mode, so that I can quickly assess rooms. | - Shows: Boss, platform, region, mic, "2/3 ●●○"<br>- Host avatar + name + reputation badge<br>- Room description (truncated) | ✅ Done |
+| RM-04 | As a player, I want to hover on a username to see a mini profile card, so that I can check their reputation without leaving the page. | - Popup shows: name, tier badge, run count, avg rating<br>- Click navigates to full profile | 🚧 Pending |
+| RM-05 | As a player, I want to see how long a room has been open, so that I can avoid stale listings. | - Shows "Created X min ago"<br>- Updates in real-time | ✅ Done |
+| RM-06 | As a player, I want to filter rooms by game mode (Normal/Deep of Night), so that I can find the right match type. | - Game mode filter toggle<br>- DON rooms show depth badge | ✅ Done |
+| RM-07 | As a Deep of Night player, I want to filter by depth level (1-5), so that I can find teams at my skill level. | - Depth filter (only visible when DON selected)<br>- Shows "Depth 3" badge on room cards | ✅ Done |
 
 ### Joining Rooms
 
-| ID | Story | Acceptance Criteria |
-|----|-------|---------------------|
-| RM-06 | As a player, I want to click "Join" on an OPEN room to join immediately, so that I can quickly get into a group. | - Adds player to room (PENDING state)<br>- Shows VC link with 5min countdown<br>- Redirects to room view |
-| RM-07 | As a player, I want to click "Apply" on an APPLY room to request access, so that the host can review my profile. | - Sends application to host<br>- Shows "Application sent" status<br>- Player can cancel application |
-| RM-08 | As a player, I want to see which rooms I've applied to, so that I can track my pending applications. | - "Applied" badge on room card<br>- Can withdraw application |
-| RM-09 | As a player, I want to join a LOCKED room by entering the password, so that I can join friends mid-session. | - Password input field<br>- Room password = in-game password<br>- Joins if password matches |
+| ID | Story | Acceptance Criteria | Status |
+|----|-------|---------------------|--------|
+| RM-06 | As a player, I want to click "Join" on an OPEN room to join immediately, so that I can quickly get into a group. | - Adds player to room (PENDING state)<br>- Shows VC link with 5min countdown<br>- Redirects to room view<br>- Loading state on join button | ✅ Done |
+| RM-07 | As a player, I want to click "Apply" on an APPLY room to request access, so that the host can review my profile. | - Sends application to host<br>- Shows "Application sent" status<br>- Player can cancel application | ❌ Not started |
+| RM-08 | As a player, I want to see which rooms I've applied to, so that I can track my pending applications. | - "Applied" badge on room card<br>- Can withdraw application | ❌ Not started |
+| RM-09 | As a player, I want to join a LOCKED room by entering the password, so that I can join friends mid-session. | - Password input field<br>- Room password = in-game password<br>- Joins if password matches | ❌ Not started |
 
 ---
 
 ## 2. Create Room Page (`/rooms/create`)
 
-| ID | Story | Acceptance Criteria |
-|----|-------|---------------------|
-| CR-01 | As a player, I want to create a room with platform, boss, region, mic, and party size settings, so that I can find compatible teammates. | - Form with all fields<br>- Validation on required fields<br>- Party size: 3 or 6 (Seamless only) |
-| CR-02 | As a player, I want to choose between OPEN and APPLY room modes, so that I can control who joins. | - Toggle between modes<br>- APPLY shows explanation |
-| CR-03 | As a player, I want to add an optional description (300 chars), so that I can specify requirements. | - Character counter<br>- Truncates at limit |
-| CR-04 | As a player, I want to create a room and be redirected to the room view, so that I can start hosting. | - Creates room in CREATED state<br>- Creates private VC in Discord<br>- Redirects to `/rooms/{id}` |
-| CR-05 | As a player, I want to select Normal or Deep of Night mode when creating a room, so that I can find teammates for ranked play. | - Game mode toggle (Normal/Deep of Night)<br>- Deep of Night shows depth selector |
-| CR-06 | As a Deep of Night player, I want to select target depth (1-5), so that I can match with similar-skill players. | - Depth 1-5 dropdown (only for DON)<br>- Boss selector hidden (DON = random boss) |
+| ID | Story | Acceptance Criteria | Status |
+|----|-------|---------------------|--------|
+| CR-01 | As a player, I want to create a room with platform, boss, region, mic, and party size settings, so that I can find compatible teammates. | - Form with all fields<br>- Validation on required fields<br>- Party size: 3 or 6 (Seamless only) | ✅ Done |
+| CR-02 | As a player, I want to choose between OPEN and APPLY room modes, so that I can control who joins. | - Toggle between modes<br>- APPLY shows explanation | ✅ Done |
+| CR-03 | As a player, I want to add an optional description (300 chars), so that I can specify requirements. | - Character counter<br>- Truncates at limit | ✅ Done |
+| CR-04 | As a player, I want to create a room and be redirected to the room view, so that I can start hosting. | - Creates room in CREATED state<br>- Creates private VC in Discord<br>- Redirects to `/rooms/{id}` | ✅ Done |
+| CR-05 | As a player, I want to select Normal or Deep of Night mode when creating a room, so that I can find teammates for ranked play. | - Game mode toggle (Normal/Deep of Night)<br>- Deep of Night shows depth selector | ✅ Done |
+| CR-06 | As a Deep of Night player, I want to select target depth (1-5), so that I can match with similar-skill players. | - Depth 1-5 dropdown (only for DON)<br>- Boss selector hidden (DON = random boss) | ✅ Done |
 
 
 ---
@@ -50,39 +50,39 @@ User stories for the Nightreign matchmaking platform, grouped by page/feature. E
 
 ### Room Header
 
-| ID | Story | Acceptance Criteria |
-|----|-------|---------------------|
-| RV-01 | As a room member, I want to see room details (boss, platform, region, mode, description), so that I know what I joined. | - Header with all room info<br>- Mode badge (OPEN/APPLY/RUN/LOCKED) |
-| RV-02 | As a room member, I want to see the current player list with ready status, so that I know who's in the room. | - List of members with avatars<br>- Ready status: ✅ Ready (in VC) / ⏳ Waiting<br>- Empty slots shown |
-| RV-03 | As a room member, I want to see the VC link prominently, so that I can easily join the voice channel. | - Big "Join Voice" button<br>- Shows countdown if in grace period |
+| ID | Story | Acceptance Criteria | Status |
+|----|-------|---------------------|--------|
+| RV-01 | As a room member, I want to see room details (boss, platform, region, mode, description), so that I know what I joined. | - Header with all room info<br>- Mode badge (OPEN/APPLY/RUN/LOCKED) | ✅ Done |
+| RV-02 | As a room member, I want to see the current player list with ready status, so that I know who's in the room. | - List of members with avatars<br>- Ready status: ✅ Ready (in VC) / ⏳ Waiting<br>- Empty slots shown | ✅ Done |
+| RV-03 | As a room member, I want to see the VC link prominently, so that I can easily join the voice channel. | - Big "Join Voice" button<br>- Shows countdown if in grace period | ✅ Done |
 
 ### Player Actions
 
-| ID | Story | Acceptance Criteria |
-|----|-------|---------------------|
-| RV-04 | As a room member, I want to click "Leave Room", so that I can exit the group. | - Removes from room<br>- Redirects to room list |
-| RV-05 | As a player in grace period, I want to see a countdown timer, so that I know how long I have to join VC. | - Shows "Join VC in X:XX or you'll be kicked"<br>- Updates in real-time |
-| RV-05.1 | As a room member, I want to select my Nightfarer (or ANY), so that teammates know what class I'm playing. | - Dropdown with all Nightfarers + ANY<br>- Defaults to profile preference<br>- Shows on member card |
+| ID | Story | Acceptance Criteria | Status |
+|----|-------|---------------------|--------|
+| RV-04 | As a room member, I want to click "Leave Room", so that I can exit the group. | - Removes from room<br>- Redirects to room list<br>- If host leaves: transfers to next oldest member or closes room | ✅ Done |
+| RV-05 | As a player in grace period, I want to see a countdown timer, so that I know how long I have to join VC. | - Shows "Join VC in X:XX or you'll be kicked"<br>- Updates in real-time | ✅ Done |
+| RV-05.1 | As a room member, I want to select my Nightfarer (or ANY), so that teammates know what class I'm playing. | - Dropdown with all Nightfarers + ANY<br>- Defaults to profile preference<br>- Shows on member card | 🚧 UI pending |
 
 ### Host Actions
 
-| ID | Story | Acceptance Criteria |
-|----|-------|---------------------|
-| RV-06 | As a host, I want to see pending applicants for APPLY rooms, so that I can accept or reject them. | - List of applicant cards<br>- Shows profile: name, tier, runs, avg rating<br>- Accept/Reject buttons |
-| RV-07 | As a host, I want to accept an applicant, so that they can join my room. | - Moves applicant to room (PENDING)<br>- Sends notification to player<br>- Updates room UI |
-| RV-08 | As a host, I want to reject an applicant, so that I can decline unsuitable players. | - Removes from applicant list<br>- Sends notification to player |
-| RV-09 | As a host, I want to kick a player from the room, so that I can remove problematic members. | - Removes player immediately<br>- Sends notification<br>- Updates room UI |
-| RV-10 | As a host, I want to close the room, so that I can end the session. | - Deletes room and VC<br>- Notifies all members<br>- Redirects host to room list |
-| RV-11 | As a host, I want to change room mode (OPEN / APPLY / LOCKED), so that I can adjust access control. | - Toggle between modes<br>- LOCKED requires password to join |
+| ID | Story | Acceptance Criteria | Status |
+|----|-------|---------------------|--------|
+| RV-06 | As a host, I want to see pending applicants for APPLY rooms, so that I can accept or reject them. | - List of applicant cards<br>- Shows profile: name, tier, runs, avg rating<br>- Accept/Reject buttons | ❌ Not started |
+| RV-07 | As a host, I want to accept an applicant, so that they can join my room. | - Moves applicant to room (PENDING)<br>- Sends notification to player<br>- Updates room UI | ❌ Not started |
+| RV-08 | As a host, I want to reject an applicant, so that I can decline unsuitable players. | - Removes from applicant list<br>- Sends notification to player | ❌ Not started |
+| RV-09 | As a host, I want to kick a player from the room, so that I can remove problematic members. | - Removes player immediately<br>- Disconnects from VC<br>- Revokes VC access<br>- Sends notification<br>- Updates room UI | ✅ Done |
+| RV-10 | As a host, I want to close the room, so that I can end the session. | - Deletes room and VC<br>- Notifies all members<br>- Redirects host to room list | ✅ Done |
+| RV-11 | As a host, I want to change room mode (OPEN / APPLY / LOCKED), so that I can adjust access control. | - Toggle between modes<br>- LOCKED requires password to join | ❌ Not started |
 
 ### Run Lifecycle
 
-| ID | Story | Acceptance Criteria |
-|----|-------|---------------------|
-| RV-12 | As a host, I want to click "Start Run" when everyone is ready, so that we can begin playing. | - Room → RUN mode<br>- Uses host's default password if set, else generates one<br>- Shows password prominently<br>- Sends password to VC chat + DMs |
-| RV-13 | As a room member, I want to see the password when run starts, so that I can enter it in-game. | - Large password display<br>- Copy button<br>- Instructions for in-game entry |
-| RV-14 | As a host, I want to click "End Run" when we finish, so that the room can accept new players or do another run. | - Room → OPEN/APPLY mode<br>- If run ≥ 10min, prompts reviews<br>- Updates room UI |
-| RV-15 | As a host, I want to lock the room manually (without starting a run), so that I can pause matchmaking. | - Room → LOCKED mode<br>- Can unlock later |
+| ID | Story | Acceptance Criteria | Status |
+|----|-------|---------------------|--------|
+| RV-12 | As a host, I want to click "Start Run" when everyone is ready, so that we can begin playing. | - Room → RUN mode<br>- Uses host's default password if set, else generates one<br>- Shows password prominently<br>- Sends password to VC chat + DMs | ❌ Not started |
+| RV-13 | As a room member, I want to see the password when run starts, so that I can enter it in-game. | - Large password display<br>- Copy button<br>- Instructions for in-game entry | ❌ Not started |
+| RV-14 | As a host, I want to click "End Run" when we finish, so that the room can accept new players or do another run. | - Room → OPEN/APPLY mode<br>- If run ≥ 10min, prompts reviews<br>- Updates room UI | ❌ Not started |
+| RV-15 | As a host, I want to lock the room manually (without starting a run), so that I can pause matchmaking. | - Room → LOCKED mode<br>- Can unlock later | ❌ Not started |
 
 ---
 
@@ -156,33 +156,37 @@ User stories for the Nightreign matchmaking platform, grouped by page/feature. E
 
 ### Voice Channel
 
-| ID | Story | Acceptance Criteria |
-|----|-------|---------------------|
-| BOT-08 | As a player, I want a private VC created for my room, so that only room members can join. | - VC with permission overwrites<br>- Only room members can see/join |
-| BOT-09 | As a system, I want to track VC presence to mark players as READY, so that VC = room membership. | - `on_voice_state_update` events<br>- Updates player state in backend |
-| BOT-10 | As a system, I want to delete the VC when the room closes, so that channels are cleaned up. | - VC deleted 5min after empty<br>- Or immediately on room close |
+| ID | Story | Acceptance Criteria | Status |
+|----|-------|---------------------|--------|
+| BOT-08 | As a player, I want a private VC created for my room, so that only room members can join. | - VC with permission overwrites<br>- Only room members can see/join | ✅ Done |
+| BOT-09 | As a system, I want to track VC presence to mark players as READY, so that VC = room membership. | - `on_voice_state_update` events<br>- Updates player state in backend | ✅ Done |
+| BOT-10 | As a system, I want to delete the VC when the room closes, so that channels are cleaned up. | - VC deleted 5min after empty<br>- Or immediately on room close | ✅ Done (immediate on close) |
+| BOT-11 | As a system, I want to delete the LFG room card when the room closes, so that outdated listings are removed. | - Deletes embed from #lfg<br>- Idempotent (handles already-deleted) | ✅ Done |
+| BOT-12 | As a player joining a room, I want VC permissions granted automatically, so that I can connect to voice. | - Discord bot grants connect/speak perms on join<br>- Permissions revoked on leave/kick | ✅ Done |
+| BOT-13 | As a player kicked/leaving, I want to be disconnected from VC, so that I can't linger in the channel. | - Discord bot disconnects user via move_to(None)<br>- Then revokes permissions | ✅ Done |
 
 ---
 
 ## 8. Real-Time Updates
 
-| ID | Story | Acceptance Criteria |
-|----|-------|---------------------|
-| RT-01 | As a player viewing room list, I want to see new rooms appear in real-time, so that I don't miss opportunities. | - WebSocket push for new rooms<br>- Smooth insertion into list |
-| RT-02 | As a player viewing room list, I want to see room updates (player count, mode) in real-time, so that I have accurate info. | - Updates without page refresh |
-| RT-03 | As a room member, I want to see player join/leave in real-time, so that I know current room state. | - WebSocket push for member changes |
-| RT-04 | As a room member, I want to see mode changes (RUN, LOCKED) in real-time, so that I'm notified immediately. | - UI updates immediately<br>- Password shown when run starts |
+| ID | Story | Acceptance Criteria | Status |
+|----|-------|---------------------|--------|
+| RT-01 | As a player viewing room list, I want to see new rooms appear in real-time, so that I don't miss opportunities. | - WebSocket push for new rooms<br>- Smooth insertion into list | ✅ Done |
+| RT-02 | As a player viewing room list, I want to see room updates (player count, mode) in real-time, so that I have accurate info. | - Updates without page refresh | ✅ Done |
+| RT-03 | As a room member, I want to see player join/leave in real-time, so that I know current room state. | - WebSocket push for member changes<br>- Global subscription (works on any page) | ✅ Done |
+| RT-04 | As a room member, I want to see mode changes (RUN, LOCKED) in real-time, so that I'm notified immediately. | - UI updates immediately<br>- Password shown when run starts | 🚧 Pending |
+| RT-05 | As a player in a room, I want to receive room updates on any page, so that I don't miss events. | - Room-specific WS subscription in App.tsx<br>- Subscribes/unsubscribes based on currentRoomId | ✅ Done |
 
 ---
 
 ## 9. Grace Period & Auto-Kick
 
-| ID | Story | Acceptance Criteria |
-|----|-------|---------------------|
-| GP-01 | As a player who joined a room, I want a 5-minute window to join VC, so that I have time to connect. | - Timer starts on room join<br>- Auto-kicked if timer expires |
-| GP-02 | As a player who disconnected from VC, I want a 5-minute grace period to rejoin, so that I'm not kicked for temporary issues. | - Timer starts on VC leave<br>- DM notification with warning |
-| GP-03 | As a player in grace period, I want to see a countdown on the room view, so that I know how much time I have. | - Timer visible on UI<br>- Updates in real-time |
-| GP-04 | As a host whose room has no activity for 10 minutes, I want the room to be expired automatically, so that stale rooms are cleaned up. | - Room deleted if host not in VC for 10min<br>- Notifications sent |
+| ID | Story | Acceptance Criteria | Status |
+|----|-------|---------------------|--------|
+| GP-01 | As a player who joined a room, I want a 5-minute window to join VC, so that I have time to connect. | - Timer starts on room join<br>- Auto-kicked if timer expires | ✅ Done |
+| GP-02 | As a player who disconnected from VC, I want a 5-minute grace period to rejoin, so that I'm not kicked for temporary issues. | - Timer starts on VC leave<br>- DM notification with warning | ✅ Done (no DM yet) |
+| GP-03 | As a player in grace period, I want to see a countdown on the room view, so that I know how much time I have. | - Timer visible on UI<br>- Updates in real-time | ✅ Done |
+| GP-04 | As a host whose room has no activity for 10 minutes, I want the room to be expired automatically, so that stale rooms are cleaned up. | - Room deleted if host not in VC for 10min<br>- Notifications sent | ❌ Not started |
 
 ---
 
